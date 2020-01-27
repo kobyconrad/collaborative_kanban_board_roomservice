@@ -7,7 +7,7 @@ function isLoggedIn() {
 
 export default (req, res) => {
   const client = new RoomService(process.env.ROOM_SERVICE_SECRET);
-  const { room } = client.parse(req.body);
+  const room = client.parse(req.body).room;
 
   if (!isLoggedIn()) {
     return client.reject();
