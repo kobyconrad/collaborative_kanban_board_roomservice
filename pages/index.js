@@ -8,56 +8,115 @@ const client = new RoomService({
 });
 
 export default () => {
-  const [doc, setDoc] = useRoomService(client, "kobys-room");
-  const [position, setPosition] = useRoomService(client, "evans-room");
+  const [position, setPosition] = useRoomService(client, "kanban-board-room");
 
-  function onClick() {
-    setDoc(prevDoc => {
-      prevDoc.number = Math.floor(Math.random() * 100);
-    });
-  }
-
-  // function handleDrag(e, ui) {
-  //   setDoc(doc => {
-  //     doc["mycard"].x += ui.deltaX;
-  //     doc["mycard"].y += ui.deltaY;
-  //     console.log(doc);
-  //   });
-  // }
-
-  function onClickFour() {
+  function createBlock() {
     setPosition(position => {
-      var z = position.newPosition.x - 250;
-      console.log(z);
-      position.newPosition = { x: z, y: 0 };
+      if (position.board) {
+        delete position.board;
+      }
+
+      position.board = position.board || {};
+
+      const id = `block-${Math.random() * 10}`;
+      position.board[id] = {
+        id,
+        position: {
+          x: 0,
+          y: 0
+        }
+      };
     });
   }
 
-  function onClickFive() {
-    setPosition(position => {
-      var z = position.newPosition.x + 250;
-      console.log(z);
-      position.newPosition = { x: z, y: 0 };
+  function deleteBoard() {
+    setPosition(board => {
+      const SACRIFICE_TO_THE_GODS = Object.keys(board)[
+        Object.keys(board).length - 1
+      ];
+
+      // ** drums in the distance **
+      // ... LIGHTENING FLARES
+      // BEHOLD FOR THE CEREMONY BEGINS
+      // YEE WHO HAVE BEEN CHOSEN REJOICE
+      // FOR EVER SHALL BE KNOWN THIS DAY
+      delete position[SACRIFICE_TO_THE_GODS];
     });
   }
+
+  function deleteState() {
+    setPosition(position => {
+      position.blocks = [];
+    });
+  }
+
+  function onDrag(e, position, blockName) {
+    const { x, y } = position;
+    setPosition(position => {
+      position[blockName] = { position: { x, y } };
+    });
+  }
+
+  function reset() {
+    setPosition(position => {
+      position["one"].position = { x: 0, y: 0 };
+    });
+
+    setPosition(position => {
+      position["two"].position = { x: 0, y: 0 };
+    });
+
+    setPosition(position => {
+      position["0"].position = { x: 0, y: 0 };
+    });
+
+    setPosition(position => {
+      position["1"].position = { x: 0, y: 0 };
+    });
+    setPosition(position => {
+      position["2"].position = { x: 0, y: 0 };
+    });
+  }
+
+  function logState() {
+    console.log(position);
+  }
+
+  const blocks = Object.values(position).map(b => {
+    return (
+      <Block
+        setPosition={b.position || { x: 0, y: 0 }}
+        onDrag={(e, pos) => onDrag(e, pos, b.id)}
+      />
+    );
+  });
 
   return (
     <div>
-      <h1>Open multiple browser windows!</h1>
+      <h1>RoomService Kanban Board Demo</h1>
 
-      <p>Number: {doc.number || 0}</p>
-
-      <button onClick={onClick}>Pick Random Number</button>
-
-      <button onClick={onClickFour}>Decrease Default Position</button>
-      <button onClick={onClickFive}>Increase Default Position</button>
+      <button onClick={createBlock}>Create Board</button>
+      <button onClick={deleteBoard}>Delete Board</button>
+      <button onClick={deleteState}>Delete All</button>
+      <button onClick={reset}>Reset All</button>
+      <button onClick={logState}>Console Log Position</button>
       <div className="blockContainer">
-        <Block />
-        <Block />
-        <Block />
+        {/* <Block
+          setPosition={
+            position["one"] ? position["one"].position : { x: 0, y: 0 }
+          }
+          onDrag={(e, pos) => onDrag(e, pos, "one")}
+        /> */}
+        {blocks}
       </div>
       <div className="blockContainer">
-        <Block setDefaultPosition={position.newPosition || { x: 0, y: 0 }} />
+        {/* <Block
+          setPosition={
+            position["two"] ? position["two"].position : { x: 0, y: 0 }
+          }
+          onDrag={(e, pos) => onDrag(e, pos, "two")}
+          blockTitle={"Blocki Boi 2"}
+        /> */}
       </div>
       <style jsx>{`
         div.blockContainer {

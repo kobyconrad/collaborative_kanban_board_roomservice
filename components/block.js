@@ -7,12 +7,13 @@ function Block(props) {
     <Draggable
       // position={{ x: 100, y: 100 }}
       // defaultPosition={{ x: 100, y: 100 }}
-      position={props.setDefaultPosition}
+      position={props.setPosition}
       grid={[250, 260]}
       onDrag={props.onDrag}
+      bounds={props.bounds}
     >
       <div>
-        Blocki Boi
+        {props.blockTitle || "Blocki Boi"}
         <style jsx>{`
           div {
             background-color: blue;
